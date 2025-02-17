@@ -1,0 +1,145 @@
+import streamlit as st
+import keras_tuner as kt
+import pandas as pd
+from tensorflow.keras.optimizers import Adam, RMSprop
+from tensorflow.python.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Dropout
+
+st.set_page_config(
+    page_title="Konfigurasi Model CuacaJakpus",
+    page_icon = "⛈️",
+)
+st.title("Konfigurasi Model")
+
+page_bg_img = """
+<style>
+[data-testid="stAppViewContainer"] {
+background-image: url("https://pluviophile.net/wp-content/uploads/cloudy-weather-wallpaper.jpg");
+background-size: cover;
+background-position: top left;
+background-repeat: no-repeat;
+background-attachment: local;
+}
+[data-testid="stHeader"] {
+background: rgba(0,0,0,0);
+}
+</style>
+"""
+
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
+features_name = [
+    "Kelembaban_Tanah",
+    "Kecepatan_Angin",
+    "Tekanan_Permukaan",
+    "Presipitasi",
+    "Kelembaban_Udara",
+    "Temperatur"
+]
+
+features = [
+    "GWETROOT", 
+    "WS10M", 
+    "PS", 
+    "PRECTOTCORR",
+    "RH2M", 
+    "T2M"]
+
+def build_model(hp):
+    model = Sequential()
+
+    # ------ Jumlah Layers, jumlah unit, fungsi aktivasi
+    for i in range(hp.Choice('layers', [1, 2])):  # Tuning layer LSTM (2)
+        model.add(LSTM(
+            units=hp.Choice('filters', [32, 64, 128]),  # Tuning jumlah unit pada layer LSTM (3) 
+            activation=hp.Choice('activation', ['relu', 'tanh', 'sigmoid']),  # Tuning fungsi aktivasi (3)
+            return_sequences=True if i < hp.Choice('layers', [1, 2]) - 1 else False  
+        ))
+        model.add(Dropout(0.2)) # Dropout
+    model.add(Dense(1))
+    
+    # ----- Optimizer dan Learning Rate
+    optimizer_choice = hp.Choice('optimizer', ['adam', 'rmsprop']) # Tuning Optimizer (2)
+    learning_rate = hp.Choice('learning_rate', [0.01, 0.001]) # Tuning learning Rate (2)
+     
+    if optimizer_choice == 'adam':
+        optimizer = Adam(learning_rate=learning_rate)
+    else:
+        optimizer = RMSprop(learning_rate=learning_rate)
+    
+    # ----- Compile Model
+    model.compile(optimizer=optimizer, loss='mean_squared_error', metrics=['mae'])
+    
+    return model
+
+def bestTuningResults(feature_name):
+    # ----- Inisiasi Tuner 
+    tuner = kt.GridSearch(
+        build_model,
+        objective='val_loss',
+        max_trials=72,
+        executions_per_trial=1,
+        directory=f'lstm_tuning_{feature_name}_dir',
+        project_name=f'lstm_{feature_name}_tuning'
+    )
+
+    # ----- Output Best Hyperparameter
+    best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
+
+    # ----- Ambil Best Trial untuk mendapatkan nilai skor (MAE)
+    best_trial = tuner.oracle.get_best_trials(num_trials=1)[0]
+    best_score = best_trial.score  # Nilai MAE dari trial terbaik
+
+    # ----- Menyimpan hasil tuning terbaik sebagai dictionary
+    best_params = {
+        "Feature": feature_name,
+        "Layers": best_hps.get('layers'),
+        "Filters": best_hps.get('filters'),
+        "Activation": best_hps.get('activation'),
+        "Optimizer": best_hps.get('optimizer'),
+        "Learning Rate": best_hps.get('learning_rate'),
+        "Score (MAE)": best_score  # Menyimpan skor terbaik
+    }
+    
+    return best_params
+
+# ----- Menggabungkan hasil tuning terbaik ke dalam satu DataFrame
+df_best_results = pd.DataFrame([bestTuningResults(feature) for feature in features_name])
+
+# ----- Menampilkan seluruh hasil terbaik dalam satu tabel
+st.write("## Konfigurasi Hyperparameter Terbaik")
+st.write(df_best_results)
+
+def tuningResult(feature_name):
+    # ----- Inisiasi Tuner 
+    tuner = kt.GridSearch(
+        build_model,
+        objective='val_loss',
+        max_trials=72,  # Jumlah Kombinasi Hyperparameter
+        executions_per_trial=1,  # 2x training per kombinasi hyperparameter
+        directory=f'lstm_tuning_{feature_name}_dir',
+        project_name=f'lstm_{feature_name}_tuning'
+    )
+
+    # ----- Output Best Hyperparameter
+    best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
+    tuner_results = tuner.oracle.get_best_trials(num_trials=72)  
+    results = []
+
+    # ----- Memasukkan Hasil Tuning ke DataFrame
+    for trial in tuner_results:
+        values = trial.hyperparameters.values
+        values['score'] = trial.score  # Nilai skor (mae)
+        values['layers'] = trial.hyperparameters.get('layers')  # Menambahkan jumlah layer
+        results.append(values)
+
+    df_results = pd.DataFrame(results)
+
+    # ----- Print seluruh hasil hyperparameter tuning
+    st.write(df_results)
+
+with st.expander("Hasil Tuning"):
+    for x in range(6):
+        st.write(f"## {features_name[x]}")
+        tuningResult(features_name[x])
+        st.divider()
