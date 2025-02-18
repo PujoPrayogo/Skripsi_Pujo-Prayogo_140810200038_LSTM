@@ -1,11 +1,11 @@
 streamlit
-pandas
 numpy
-keras
+pandas
+scikit-learn
 matplotlib
-sklearn
+requests
+keras
 tensorflow
-keras_tuner
-matplotlib.pyplot
+keras-tuner
 statsmodels
-streamlit_extras
+streamlit-extras
