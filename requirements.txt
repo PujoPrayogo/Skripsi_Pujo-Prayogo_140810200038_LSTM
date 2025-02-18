@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+keras
+matplotlib
+sklearn
+tensorflow
+keras_tuner
+matplotlib.pyplot
+statsmodels
+streamlit_extras
