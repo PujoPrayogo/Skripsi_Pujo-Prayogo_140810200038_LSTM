@@ -58,7 +58,7 @@ features = [
     "RH2M", 
     "T2M"]
 
-with st.expander("Parameter Cuaca"):
+with st.expander("Parameter Cuaca (NASA POWER)"):
     st.markdown(
     """
     - 🌱:rainbow-background[Kelembaban Tanah (0-1)] : Jumlah air dan uap air yang tersedia bagi tanaman di zona perakaran, yang umumnya dianggap sebagai lapisan tanah hingga kedalaman 200 cm, dinyatakan sebagai proporsi air yang terdapat dalam sejumlah tanah tertentu. Nilainya berkisar dari 0 untuk kondisi yang benar-benar kering hingga 1 untuk tanah yang benar-benar jenuh air.
