@@ -121,7 +121,7 @@ timesteps = {
     "Kelembaban_Udara": 30,
     "Temperatur": 20
 }
-#
+
 with st.spinner("Sedang Load Tuning..."):
 # ----- Menggabungkan hasil tuning terbaik ke dalam satu DataFrame
     df_best_results = pd.DataFrame([bestTuningResults(feature) for feature in features_name])
@@ -181,7 +181,7 @@ with st.expander("Autokorelasi"):
     max_lags = st.slider("Jumlah lags", 0, 100, 50)
 
     # Menjalankan fungsi untuk semua parameter dalam DataFrame
-    timesteps_dict = determine_timesteps(df = st.session_state["df_all"], max_lags)
+    timesteps_dict = determine_timesteps(st.session_state["df_all"], max_lags)
 
 with st.expander("Hasil Tuning"):
     for x in range(6):
