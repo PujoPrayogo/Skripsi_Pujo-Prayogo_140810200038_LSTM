@@ -27,7 +27,7 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 def emoji_rain():
     rain(
         emoji="💧",
-        font_size=5,
+        font_size=8,
         falling_speed=5,
         animation_length="infinite",
     )
