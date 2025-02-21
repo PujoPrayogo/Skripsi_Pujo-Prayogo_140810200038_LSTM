@@ -375,12 +375,12 @@ T_combined_dates = np.concatenate([df_T.index[len(X_T_train) + timesteps["T"]:],
 T_combined_predictions = np.concatenate([y_T_pred_inv, T_future_preds])   
 
 col1, col2, col3 = st.columns(3)
-col1.metric("--------- Temperatur", f'🌡️{np.round(T_future_preds[-1], 2)[0]} °C')
-col2.metric("--------- Angin", f"💨{np.round(KA_future_preds[-1], 2)[0]} m/s")
-col3.metric("--------- Kelembaban Udara", f"😤{np.round(KU_future_preds[-1], 2)[0]} %")
-col1.metric("--------- Kelembaban Tanah", f"🌱{np.round(KT_future_preds[-1], 2)[0]}")
-col2.metric("--------- Tekanan Permukaan",f"🌍{np.round(TP_future_preds[-1], 2)[0]} kPa")
-col3.metric("--------- Presipitasi", f"🌦️{np.round(PR_future_preds[-1], 2)[0]} mm/d")
+col1.metric("--------- :rainbow-background[Temperatur]", f'🌡️{np.round(T_future_preds[-1], 2)[0]} °C')
+col2.metric("--------- :rainbow-background[Angin]", f"💨{np.round(KA_future_preds[-1], 2)[0]} m/s")
+col3.metric("--------- :rainbow-background[Kelembaban Udara]", f"😤{np.round(KU_future_preds[-1], 2)[0]} %")
+col1.metric("--------- :rainbow-background[Kelembaban Tanah]", f"🌱{np.round(KT_future_preds[-1], 2)[0]}")
+col2.metric("--------- :rainbow-background[Tekanan Permukaan]",f"🌍{np.round(TP_future_preds[-1], 2)[0]} kPa")
+col3.metric("--------- :rainbow-background[Presipitasi]", f"🌦️{np.round(PR_future_preds[-1], 2)[0]} mm/d")
 
 st.divider()
 col1, col2 = st.columns(2)
