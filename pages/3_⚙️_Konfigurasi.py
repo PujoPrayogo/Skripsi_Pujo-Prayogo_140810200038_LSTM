@@ -6,6 +6,7 @@ from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.python.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from statsmodels.tsa.stattools import acf
+from streamlit_extras.let_it_rain import rain 
 
 st.set_page_config(
     page_title="Konfigurasi Model CuacaJakpus",
@@ -29,6 +30,15 @@ background: rgba(0,0,0,0);
 """
 
 st.markdown(page_bg_img, unsafe_allow_html=True)
+
+def emoji_rain():
+    rain(
+        emoji="💧",
+        font_size=5,
+        falling_speed=5,
+        animation_length="infinite",
+    )
+emoji_rain()
 
 from streamlit_extras.badges import badge
 with st.sidebar:

@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_extras.badges import badge
+from streamlit_extras.let_it_rain import rain 
 
 st.set_page_config(
     page_title="About CuacaJakpus",
@@ -23,6 +24,15 @@ background: rgba(0,0,0,0);
 """
 
 st.markdown(page_bg_img, unsafe_allow_html=True)
+
+def emoji_rain():
+    rain(
+        emoji="💧",
+        font_size=5,
+        falling_speed=5,
+        animation_length="infinite",
+    )
+emoji_rain()
 
 with st.sidebar:
     st.sidebar.title("⛈️CuacaJakpus")
