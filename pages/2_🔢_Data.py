@@ -92,6 +92,7 @@ Y = df.values
 split_index = len(st.session_state["X_train"])
 
 # Plotting Pembagian Data Train & Testing
+st.markdown("## Visualisasi Data")
 plt.figure(figsize=(14, 8))
 
 for i, (column, metric) in enumerate(zip(df.columns, metrics), 1):
