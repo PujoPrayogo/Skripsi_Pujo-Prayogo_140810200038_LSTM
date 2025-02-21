@@ -50,7 +50,7 @@ def emoji_rain():
     )
 emoji_rain()
 
-st.title('⛈️Prediksi CuacaJakpus')
+st.title('⛈️CuacaJakpus')
 st.write('Prediksi Cuaca di Jakarta Pusat menggunakan model LSTM')
 
 target_date = st.date_input('Masukkan Tanggal Prediksi :', datetime(2024, 1, 1))
