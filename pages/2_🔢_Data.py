@@ -1,6 +1,5 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-from statsmodels.tsa.stattools import acf
 
 st.set_page_config(
     page_title="Data CuacaJakpus",
@@ -106,27 +105,3 @@ for i, (column, metric) in enumerate(zip(df.columns, metrics), 1):
 
 plt.tight_layout()
 st.pyplot(plt.gcf())
-
-# ----- Fungsi Autokorelasi
-def determine_timesteps(df, max_lag):
-    timesteps_dict = {}
-    
-    for column in df.columns:
-        # Menghitung autokorelasi hingga max_lag
-        lag_acf = acf(df[column], nlags=max_lag)
-        st.markdown(f"## {column}")
-        
-        # Plotting autokorelasi
-        plt.figure(figsize=(10, 6))
-        plt.stem(range(len(lag_acf)), lag_acf)
-        plt.title(f'Autocorrelation Parameter {column}')
-        plt.xlabel('Lag')
-        plt.ylabel('Autocorrelation')
-        st.pyplot(plt.gcf())
-    return timesteps_dict
-
-with st.expander("Autokorelasi"):
-    max_lags = st.slider("Jumlah lags", 0, 100, 50)
-
-    # Menjalankan fungsi untuk semua parameter dalam DataFrame
-    timesteps_dict = determine_timesteps(df, max_lags)

@@ -1,9 +1,11 @@
 import streamlit as st
 import keras_tuner as kt
+import matplotlib.pyplot as plt
 import pandas as pd
 from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.python.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
+from statsmodels.tsa.stattools import acf
 
 st.set_page_config(
     page_title="Konfigurasi Model CuacaJakpus",
@@ -110,9 +112,20 @@ def bestTuningResults(feature_name):
     
     return best_params
 
+# ----- Timesteps
+timesteps = {
+    "Kelembaban_Tanah": 30,
+    "Kecepatan_Angin": 20,
+    "Tekanan_Permukaan": 40,
+    "Presipitasi": 30,
+    "Kelembaban_Udara": 30,
+    "Temperatur": 20
+}
+
 with st.spinner("Sedang Load Tuning..."):
 # ----- Menggabungkan hasil tuning terbaik ke dalam satu DataFrame
     df_best_results = pd.DataFrame([bestTuningResults(feature) for feature in features_name])
+    df_best_results["Timesteps"] = df_best_results["Feature"].map(timesteps)
 
     # ----- Menampilkan seluruh hasil terbaik dalam satu tabel
     st.write("## Konfigurasi Hyperparameter Terbaik")
@@ -145,6 +158,30 @@ def tuningResult(feature_name):
 
     # ----- Print seluruh hasil hyperparameter tuning
     st.write(df_results)
+
+# ----- Fungsi Autokorelasi
+def determine_timesteps(df, max_lag):
+    timesteps_dict = {}
+    
+    for column in df.columns:
+        # Menghitung autokorelasi hingga max_lag
+        lag_acf = acf(df[column], nlags=max_lag)
+        st.markdown(f"## {column}")
+        
+        # Plotting autokorelasi
+        plt.figure(figsize=(10, 6))
+        plt.stem(range(len(lag_acf)), lag_acf)
+        plt.title(f'Autocorrelation Parameter {column}')
+        plt.xlabel('Lag')
+        plt.ylabel('Autocorrelation')
+        st.pyplot(plt.gcf())
+    return timesteps_dict
+
+with st.expander("Autokorelasi"):
+    max_lags = st.slider("Jumlah lags", 0, 100, 50)
+
+    # Menjalankan fungsi untuk semua parameter dalam DataFrame
+    timesteps_dict = determine_timesteps(st.session_state["df_all"], max_lags)
 
 with st.expander("Hasil Tuning"):
     for x in range(6):
