@@ -126,6 +126,7 @@ with st.spinner("Sedang Load Tuning..."):
 # ----- Menggabungkan hasil tuning terbaik ke dalam satu DataFrame
     df_best_results = pd.DataFrame([bestTuningResults(feature) for feature in features_name])
     df_best_results["Timesteps"] = df_best_results["Feature"].map(timesteps)
+    df_best_results = df_best_results["Feature", "Timesteps", "Layers", "Filters", "Activation", "Optimizer", "Learning Rate", "Score (MAE)"]
 
     # ----- Menampilkan seluruh hasil terbaik dalam satu tabel
     st.write("## Konfigurasi Hyperparameter Terbaik")
