@@ -42,8 +42,9 @@ with st.sidebar:
 
 st.title("🔢Data yang digunakan")
 st.markdown('Sumber : [POWER NASA](https://power.larc.nasa.gov/data-access-viewer/)')
-st.write(f'Range : {st.session_state['start_date'].year} - {st.session_state['end_date'].year}')
+st.write(f'Rentang Waktu : {st.session_state['start_date'].year} - {st.session_state['end_date'].year}')
 st.write(f'Koordinat : {st.session_state['lat']}, {st.session_state['long']}')
+st.write('Lokasi : Kota Administrasi Jakarta Pusat')
 
 features_name = [
     "Kelembaban_Tanah",
@@ -54,8 +55,17 @@ features_name = [
     "Temperatur"
 ]
 
+features_name_space = [
+    "Kelembaban Tanah",
+    "Kecepatan Angin",
+    "Tekanan Permukaan",
+    "Presipitasi",
+    "Kelembaban Udara",
+    "Temperatur"
+]
+
 # List metric yang digunakan pada tiap parameter (berurutan dengan 'features')
-metrics = ['0/1', 'm/s', 'kPa', 'mm/hari', '%', 'C']
+metrics = ['0/1', 'm/s', 'kPa', 'mm/d', '%', 'C']
 
 df = st.session_state["df_all"]
 
@@ -72,10 +82,10 @@ with st.expander("Parameter Cuaca (NASA POWER)"):
     """
     - 🌱:rainbow-background[Kelembaban Tanah (0-1)] : Jumlah air dan uap air yang tersedia bagi tanaman di zona perakaran, yang umumnya dianggap sebagai lapisan tanah hingga kedalaman 200 cm, dinyatakan sebagai proporsi air yang terdapat dalam sejumlah tanah tertentu. Nilainya berkisar dari 0 untuk kondisi yang benar-benar kering hingga 1 untuk tanah yang benar-benar jenuh air.
     - 💨:rainbow-background[Kecepatan Angin (m/s)] : Rata-rata kecepatan angin pada ketinggian 10 meter di atas permukaan bumi.
-    - 🌍:rainbow-background[Tekanan Permukaan Tanah (kPa)]: Tekanan atmosfer di permukaan bumi.
-    - 🌦️:rainbow-background[Presipitasi (mm/hari)] : Rata-rata curah hujan total yang telah dikoreksi bias MERRA-2 di permukaan bumi.
-    - 😤:rainbow-background[Kelembaban Udara Relatif (%)] : Rasio tekanan uap terhadap tekanan uap jenuh terhadap permukaan datar air murni, dinyatakan dalam persen.
+    - 🌦️:rainbow-background[Presipitasi (mm/d)] : Rata-rata curah hujan total yang telah dikoreksi bias MERRA-2 di permukaan bumi.
     - 🌡️:rainbow-background[Temperatur (°C)] : Rasio tekanan uap terhadap tekanan uap jenuh terhadap permukaan datar air murni, dinyatakan dalam persen.
+    - 🌍:rainbow-background[Tekanan Permukaan Tanah (kPa)]: Tekanan atmosfer di permukaan bumi.
+    - 😤:rainbow-background[Kelembaban Udara Relatif (%)] : Rasio tekanan uap terhadap tekanan uap jenuh terhadap permukaan datar air murni, dinyatakan dalam persen.
     """
     )
 
@@ -86,9 +96,10 @@ st.write(f'Baris: {len(df)}')
 st.write(f'Data Invalid : {(df == -999).sum().sum()}')
 
 df.rename(columns={
+    "Kelembaban_Tanah": "Kelembaban Tanah",
     "Kecepatan_Angin": "Kecepatan Angin (m/s)",
     "Tekanan_Permukaan": "Tekanan Permukaan (kPa)",
-    "Presipitasi": "Presipitasi (mm/hari)",
+    "Presipitasi": "Presipitasi (mm/d)",
     "Kelembaban_Udara": "Kelembaban Udara (%)",
     "Temperatur": "Temperatur (°C)"
 }, inplace=True)
@@ -102,16 +113,21 @@ split_index = len(st.session_state["X_train"])
 
 # Plotting Pembagian Data Train & Testing
 st.markdown("## Visualisasi Data")
-plt.figure(figsize=(14, 8))
-
-for i, (column, metric) in enumerate(zip(df.columns, metrics), 1):
-    plt.subplot(3, 2, i)
+def plot_weather_data(df, split_index, column, col):
+    """Fungsi untuk menampilkan plot satu variabel cuaca berdasarkan nama kolom df setelah rename."""
+    plt.figure(figsize=(12, 5))
     plt.plot(df.index[:split_index], df[column][:split_index], label='Train')
     plt.plot(df.index[split_index:], df[column][split_index:], label='Test', color='orange')
-    plt.xlabel('Tahun')
-    plt.ylabel(metric)
-    plt.title(column)
+    plt.ylabel(column.split()[-1])  # Mengambil satuan metrik dari nama kolom (misal: "(kPa)")
+    plt.title(column)  # Nama kolom setelah rename sebagai judul
     plt.legend()
+    plt.tight_layout()
+    col.pyplot(plt.gcf())
 
-plt.tight_layout()
-st.pyplot(plt.gcf())
+col1, col2 = st.columns(2)
+plot_weather_data(df, split_index, df.columns[0], col1)
+plot_weather_data(df, split_index, df.columns[1], col2)
+plot_weather_data(df, split_index, df.columns[2], col1)
+plot_weather_data(df, split_index, df.columns[3], col2)
+plot_weather_data(df, split_index, df.columns[4], col1)
+plot_weather_data(df, split_index, df.columns[5], col2)

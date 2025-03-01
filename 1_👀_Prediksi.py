@@ -53,7 +53,7 @@ emoji_rain()
 st.title('⛈️CuacaJakpus')
 st.write('Prediksi Cuaca di Jakarta Pusat menggunakan model LSTM')
 
-target_date = st.date_input('Masukkan Tanggal Prediksi :', datetime(2024, 1, 1))
+target_date = st.date_input('Masukkan Tanggal Prediksi :', datetime(2025, 1, 1))
 
 features = [
     "GWETROOT", 
@@ -73,11 +73,11 @@ features_name = [
 ]
 
 features_name_space = [
-    "Kelembaban_Tanah",
-    "Kecepatan_Angin",
-    "Tekanan_Permukaan",
+    "Kelembaban Tanah",
+    "Kecepatan Angin",
+    "Tekanan Permukaan",
     "Presipitasi",
-    "Kelembaban_Udara",
+    "Kelembaban Udara",
     "Temperatur"
 ]
 
@@ -100,10 +100,10 @@ metrics_dict = {
 }
 
 # ----- Tanggal dan Koordinat lokasi data pada POWER NASA
-start_date = "20190101"
-end_date = "20231231"
-lat = "-6.3968"
-long = "106.8458"
+start_date = "20200101"
+end_date = "20241231"
+lat = "-6.18"
+long = "106.83"
 
 if 'start_date' not in st.session_state:
     st.session_state['start_date'] = datetime.strptime(start_date, "%Y%m%d")
@@ -112,10 +112,10 @@ if 'end_date' not in st.session_state:
     st.session_state['end_date'] = datetime.strptime(end_date, "%Y%m%d")
 
 if 'lat' not in st.session_state:
-    st.session_state["lat"] = -6.3968
+    st.session_state["lat"] = -6.18
 
 if 'long' not in st.session_state:
-    st.session_state["long"] = 106.8458
+    st.session_state["long"] = 106.83
 
 # -------------------------------------------------------------------------------------- FUNGSI (5)
 # ----- Fungsi Membuat Sequence 
@@ -150,18 +150,26 @@ def predict_until(target_date, model, data, scaler, timesteps, initial_date):
     return future_dates, future_predictions_inv
 
 # ----- Fungsi Plot hasil Prediksi
-def prediction_plot(df, X_train, timesteps, y_test_inv, y_pred_inv, future_dates, future_preds, feature, feature_name, target_date, col):
+def prediction_plot(df, X_train, timesteps, y_test_inv, future_dates, future_preds, feature, feature_name, target_date, col):
+    # --- FILTER DATA AKTUAL HANYA BULAN DESEMBER 2024 ---
+    last_actual_date = pd.to_datetime('2024-12-01')  # Tanggal awal untuk data aktual yang ditampilkan
+    actual_index = df.index[len(X_train) + timesteps:]  # Index asli data aktual
+    mask = actual_index >= last_actual_date  # Filter hanya untuk bulan Desember 2024 ke depan
+
     # --- VISUALISASI HASIL PREDIKSI ---
     plt.figure(figsize=(10, 4))
-    plt.plot(df.index[len(X_train) + timesteps:], y_test_inv, label='Data Aktual', color='blue')
-    plt.plot(df.index[len(X_train) + timesteps:], y_pred_inv, label='Prediksi Model', color='orange')
-    plt.plot(future_dates, future_preds, label='Prediksi Masa Depan', color='lime', linestyle='-')
+    
+    # Plot hanya data aktual bulan Desember 2024 ke depan
+    plt.plot(actual_index[mask], y_test_inv[mask], label='Data Aktual', color='blue')
+
+    # Plot prediksi masa depan
+    plt.plot(future_dates, future_preds, label='Prediksi Masa Depan', color='red', linestyle='-')
 
     # Anotasi prediksi pada target_date
     plt.annotate(f'{future_preds[-1][0]:.2f} {metrics_dict[feature]}',
-             xy=(future_dates[-1], future_preds[-1][0]),
-             xytext=(5, 10),
-             textcoords='offset points')
+                 xy=(future_dates[-1], future_preds[-1][0]),
+                 xytext=(5, 10),
+                 textcoords='offset points')
 
     plt.xlabel('Tahun')
     plt.ylabel(metrics_dict[feature])
@@ -384,12 +392,12 @@ T_combined_dates = np.concatenate([df_T.index[len(X_T_train) + timesteps["T"]:],
 T_combined_predictions = np.concatenate([y_T_pred_inv, T_future_preds])   
 
 col1, col2, col3 = st.columns(3)
-col1.metric(":rainbow-background[Temperatur]", f'🌡️{np.round(T_future_preds[-1], 2)[0]} °C')
-col2.metric(":rainbow-background[Angin]", f"💨{np.round(KA_future_preds[-1], 2)[0]} m/s")
-col3.metric(":rainbow-background[Kelembaban Udara]", f"😤{np.round(KU_future_preds[-1], 2)[0]} %")
 col1.metric(":rainbow-background[Kelembaban Tanah]", f"🌱{np.round(KT_future_preds[-1], 2)[0]}")
+col2.metric(":rainbow-background[Kecepatan Angin]", f"💨{np.round(KA_future_preds[-1], 2)[0]} m/s")
 col2.metric(":rainbow-background[Tekanan Permukaan]",f"🌍{np.round(TP_future_preds[-1], 2)[0]} kPa")
 col3.metric(":rainbow-background[Presipitasi]", f"🌦️{np.round(PR_future_preds[-1], 2)[0]} mm/d")
+col3.metric(":rainbow-background[Kelembaban Udara]", f"😤{np.round(KU_future_preds[-1], 2)[0]} %")
+col1.metric(":rainbow-background[Temperatur]", f'🌡️{np.round(T_future_preds[-1], 2)[0]} °C')
 
 st.divider()
 col1, col2 = st.columns(2)
@@ -397,6 +405,7 @@ col1, col2 = st.columns(2)
 prediksi = [ KT_future_preds[-1], KA_future_preds[-1], TP_future_preds[-1], PR_future_preds[-1] , KU_future_preds[-1], T_future_preds[-1] ]
 prediksi_dict = {'Parameter' : features_name_space, f'prediksi {target_date}' : prediksi}
 prediksi_df = pd.DataFrame(prediksi_dict)
+prediksi_df.index += 1
 col1.write("## Data")
 col1.write(prediksi_df)
 
@@ -411,16 +420,22 @@ T_r2, T_mape = evaluasi(y_T_test_inv, y_T_pred_inv)
 r2 = [KT_r2, KA_r2, TP_r2, PR_r2, KU_r2, T_r2]
 mape = [KT_mape, KA_mape, TP_mape, PR_mape, KU_mape, T_mape]
 
-akurasi_dict = {'Parameter' : features_name, 'R2' : r2, ' MAPE%' : mape}
+akurasi_dict = {'Parameter' : features_name_space, 'R2' : r2, ' MAPE%' : mape}
 akurasi_df = pd.DataFrame(akurasi_dict)
+akurasi_df.index += 1
 col2.write("## Akurasi")
 col2.write(akurasi_df)
 #col2.write(akurasi_df.to_html(index=False), unsafe_allow_html=True)
 
+col = st.columns(1)
+st.write("## Grafik")
+
+col1, col2 = st.columns(2)
+
 with st.expander("Grafik Prediksi"):
-    prediction_plot(df_KT, X_KT_train, timesteps["KT"], y_KT_test_inv, y_KT_pred_inv, KT_future_dates, KT_future_preds, features[0], features_name[0], target_date, col1)
-    prediction_plot(df_KA, X_KA_train, timesteps["KA"], y_KA_test_inv, y_KA_pred_inv, KA_future_dates, KA_future_preds, features[1], features_name[1], target_date, col2)
-    prediction_plot(df_TP, X_TP_train, timesteps["TP"], y_TP_test_inv, y_TP_pred_inv, TP_future_dates, TP_future_preds, features[2], features_name[2], target_date, col1)
-    prediction_plot(df_PR, X_PR_train, timesteps["PR"], y_PR_test_inv, y_PR_pred_inv, PR_future_dates, PR_future_preds, features[3], features_name[3], target_date, col2)
-    prediction_plot(df_KU, X_KU_train, timesteps["KU"], y_KU_test_inv, y_KU_pred_inv, KU_future_dates, KU_future_preds, features[4], features_name[4], target_date, col1)
-    prediction_plot(df_T, X_T_train, timesteps["T"], y_T_test_inv, y_T_pred_inv, T_future_dates, T_future_preds, features[5], features_name[5], target_date, col2)
+    prediction_plot(df_KT, X_KT_train, timesteps["KT"], y_KT_test_inv, KT_future_dates, KT_future_preds, features[0], features_name_space[0], target_date, col1)
+    prediction_plot(df_KA, X_KA_train, timesteps["KA"], y_KA_test_inv, KA_future_dates, KA_future_preds, features[1], features_name_space[1], target_date, col2)
+    prediction_plot(df_TP, X_TP_train, timesteps["TP"], y_TP_test_inv, TP_future_dates, TP_future_preds, features[2], features_name_space[2], target_date, col1)
+    prediction_plot(df_PR, X_PR_train, timesteps["PR"], y_PR_test_inv, PR_future_dates, PR_future_preds, features[3], features_name_space[3], target_date, col2)
+    prediction_plot(df_KU, X_KU_train, timesteps["KU"], y_KU_test_inv, KU_future_dates, KU_future_preds, features[4], features_name_space[4], target_date, col1)
+    prediction_plot(df_T, X_T_train, timesteps["T"], y_T_test_inv, T_future_dates, T_future_preds, features[5], features_name_space[5], target_date, col2)
