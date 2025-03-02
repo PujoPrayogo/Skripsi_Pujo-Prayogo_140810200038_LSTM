@@ -94,9 +94,9 @@ metrics_dict = {
     "GWETROOT": "", #Hanya 0-1
     "WS10M": "m/s",
     "PS": "kPa",
-    "PRECTOTCORR": "mm/day",
-    "RH2M": "C",
-    "T2M": "g/kg"
+    "PRECTOTCORR": "mm/d",
+    "RH2M": "%",
+    "T2M": "°C"
 }
 
 # ----- Tanggal dan Koordinat lokasi data pada POWER NASA
@@ -112,10 +112,10 @@ if 'end_date' not in st.session_state:
     st.session_state['end_date'] = datetime.strptime(end_date, "%Y%m%d")
 
 if 'lat' not in st.session_state:
-    st.session_state["lat"] = -6.18
+    st.session_state["lat"] = lat
 
 if 'long' not in st.session_state:
-    st.session_state["long"] = 106.83
+    st.session_state["long"] = long
 
 # -------------------------------------------------------------------------------------- FUNGSI (5)
 # ----- Fungsi Membuat Sequence 
@@ -403,9 +403,11 @@ st.divider()
 col1, col2 = st.columns(2)
 # ----- Print Hasil Prediksi
 prediksi = [ KT_future_preds[-1], KA_future_preds[-1], TP_future_preds[-1], PR_future_preds[-1] , KU_future_preds[-1], T_future_preds[-1] ]
+prediksi = [ '%.2f' % i for i in prediksi ] # ----- Bulatkan 2 angka di belakang koma
+
 prediksi_dict = {'Parameter' : features_name_space, f'prediksi {target_date}' : prediksi}
 prediksi_df = pd.DataFrame(prediksi_dict)
-prediksi_df.index += 1
+prediksi_df.index += 1 # ----- indeks mulai dari 1
 col1.write("## Data")
 col1.write(prediksi_df)
 
