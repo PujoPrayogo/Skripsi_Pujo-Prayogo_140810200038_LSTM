@@ -163,7 +163,7 @@ def prediction_plot(df, X_train, timesteps, y_test_inv, future_dates, future_pre
     plt.plot(actual_index[mask], y_test_inv[mask], label='Data Aktual', color='blue')
 
     # Plot prediksi masa depan
-    plt.plot(future_dates, future_preds, label='Prediksi Masa Depan', color='red', linestyle='-')
+    plt.plot(future_dates, future_preds, label='Prediksi Masa Depan', color='forestgreen', linestyle='-')
 
     # Anotasi prediksi pada target_date
     plt.annotate(f'{future_preds[-1][0]:.2f} {metrics_dict[feature]}',
@@ -171,7 +171,7 @@ def prediction_plot(df, X_train, timesteps, y_test_inv, future_dates, future_pre
                  xytext=(5, 10),
                  textcoords='offset points')
 
-    plt.xlabel('Tahun')
+    plt.xlabel('Tanggal')
     plt.ylabel(metrics_dict[feature])
     plt.title(f'Prediksi {feature_name} Hingga {target_date}')
     plt.grid(True)
