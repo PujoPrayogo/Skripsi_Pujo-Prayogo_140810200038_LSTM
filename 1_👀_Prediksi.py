@@ -440,4 +440,4 @@ with st.expander("Grafik Prediksi"):
     prediction_plot(df_TP, X_TP_train, timesteps["TP"], y_TP_test_inv, TP_future_dates, TP_future_preds, features[2], features_name_space[2], target_date, col1)
     prediction_plot(df_PR, X_PR_train, timesteps["PR"], y_PR_test_inv, PR_future_dates, PR_future_preds, features[3], features_name_space[3], target_date, col2)
     prediction_plot(df_KU, X_KU_train, timesteps["KU"], y_KU_test_inv, KU_future_dates, KU_future_preds, features[4], features_name_space[4], target_date, col1)
-    prediction_plot(df_T, X_T_train, timesteps["T"], y_T_test_inv, T_future_dates, T_future_preds, features[5], features_name_space[5], target_date, col2)
+    prediction_plot(df_T, X_T_train, timesteps["T"], y_T_test_inv, T_future_dates, T_future_preds, features[5], features_name_space[5], target_date, col2)z
