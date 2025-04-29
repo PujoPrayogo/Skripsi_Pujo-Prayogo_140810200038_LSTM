@@ -430,7 +430,7 @@ col2.write(akurasi_df)
 #col2.write(akurasi_df.to_html(index=False), unsafe_allow_html=True)
 
 col = st.columns(1)
-col.write("## Grafik Prediksi")
+col.write("Grafik Prediksi")
 
 col1, col2 = st.columns(2)
 
