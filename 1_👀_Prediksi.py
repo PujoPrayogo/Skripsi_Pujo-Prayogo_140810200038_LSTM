@@ -4,7 +4,6 @@ import requests
 import numpy as np
 import pandas as pd
 import streamlit as st
-import keras_tuner as kt
 import matplotlib.pyplot as plt
 from datetime import timedelta, datetime
 from sklearn.metrics import r2_score
@@ -13,7 +12,6 @@ from sklearn.model_selection import train_test_split
 
 # Streamlit extras
 from streamlit_extras.badges import badge
-from streamlit_extras.let_it_rain import rain 
 
 st.set_page_config(
     page_title="CuacaJakpus",
@@ -40,15 +38,6 @@ background: rgba(0,0,0,0);
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
-    
-def emoji_rain():
-    rain(
-        emoji="💧",
-        font_size=8,
-        falling_speed=5,
-        animation_length="infinite",
-    )
-emoji_rain()
 
 st.title('⛈️CuacaJakpus')
 st.write('Prediksi Cuaca di Jakarta Pusat menggunakan model LSTM')
@@ -211,10 +200,10 @@ with st.spinner("Sedang Mengambil data..."):
     if 'df_all' not in st.session_state:
         st.session_state["df_all"] = df_all
 
-    # Buat dictionary untuk menyimpan setiap DataFrame berdasarkan nama kolom
+    # ----- dictionary untuk menyimpan setiap DataFrame berdasarkan nama kolom
     df_dict = {col: df_all[[col]].copy() for col in df_all.columns}
 
-    # Akses DataFrame dengan nama yang sesuai
+    # ----- Akses DataFrame dengan nama yang sesuai
     df_KT = df_dict['Kelembaban_Tanah']
     df_KA = df_dict['Kecepatan_Angin']
     df_TP = df_dict['Tekanan_Permukaan']
@@ -360,9 +349,7 @@ with st.spinner("Sedang Memprediksi...",  show_time=True):
     PR_future_dates, PR_future_preds = predict_until(target_date, model_PR, X_PR_test_seq[-1], PR_scaler, timesteps["PR"], df_PR.index[-1])
     KU_future_dates, KU_future_preds = predict_until(target_date, model_KU, X_KU_test_seq[-1], KU_scaler, timesteps["KU"], df_KU.index[-1])
     T_future_dates, T_future_preds = predict_until(target_date, model_T, X_T_test_seq[-1], T_scaler, timesteps["T"], df_T.index[-1])
-
 st.success("Selesai!")
-st.balloons()
 
 # ----- Menggabungkan hasil prediksi masa depan dengan data prediksi sebelumnya ------------ KT
 KT_combined_dates = np.concatenate([df_KT.index[len(X_KT_train) + timesteps["KT"]:], KT_future_dates])
@@ -392,12 +379,12 @@ T_combined_dates = np.concatenate([df_T.index[len(X_T_train) + timesteps["T"]:],
 T_combined_predictions = np.concatenate([y_T_pred_inv, T_future_preds])   
 
 col1, col2, col3 = st.columns(3)
-col1.metric(":rainbow-background[Kelembaban Tanah]", f"🌱{np.round(KT_future_preds[-1], 2)[0]}")
-col2.metric(":rainbow-background[Kecepatan Angin]", f"💨{np.round(KA_future_preds[-1], 2)[0]} m/s")
-col2.metric(":rainbow-background[Tekanan Permukaan]",f"🌍{np.round(TP_future_preds[-1], 2)[0]} kPa")
-col3.metric(":rainbow-background[Presipitasi]", f"🌦️{np.round(PR_future_preds[-1], 2)[0]} mm/d")
-col3.metric(":rainbow-background[Kelembaban Udara]", f"😤{np.round(KU_future_preds[-1], 2)[0]} %")
-col1.metric(":rainbow-background[Temperatur]", f'🌡️{np.round(T_future_preds[-1], 2)[0]} °C')
+col1.metric(":gray-background[Kelembaban Tanah]", f"🌱{np.round(KT_future_preds[-1], 2)[0]}")
+col2.metric(":gray-background[Kecepatan Angin]", f"💨{np.round(KA_future_preds[-1], 2)[0]} m/s")
+col2.metric(":gray-background[Tekanan Permukaan]",f"🌍{np.round(TP_future_preds[-1], 2)[0]} kPa")
+col3.metric(":gray-background[Presipitasi]", f"🌦️{np.round(PR_future_preds[-1], 2)[0]} mm/d")
+col3.metric(":gray-background[Kelembaban Udara]", f"😤{np.round(KU_future_preds[-1], 2)[0]} %")
+col1.metric(":gray-background[Temperatur]", f'🌡️{np.round(T_future_preds[-1], 2)[0]} °C')
 
 st.divider()
 col1, col2 = st.columns(2)
@@ -430,11 +417,10 @@ col2.write(akurasi_df)
 #col2.write(akurasi_df.to_html(index=False), unsafe_allow_html=True)
 
 col = st.columns(1)
-col.write("Grafik Prediksi")
+st.write("## Grafik Prediksi")
 
 col1, col2 = st.columns(2)
 
-col1.write("## Kelembaban Tanah")
 prediction_plot(df_KT, X_KT_train, timesteps["KT"], y_KT_test_inv, KT_future_dates, KT_future_preds, features[0], features_name_space[0], target_date, col1)
 prediction_plot(df_KA, X_KA_train, timesteps["KA"], y_KA_test_inv, KA_future_dates, KA_future_preds, features[1], features_name_space[1], target_date, col2)
 prediction_plot(df_TP, X_TP_train, timesteps["TP"], y_TP_test_inv, TP_future_dates, TP_future_preds, features[2], features_name_space[2], target_date, col1)
