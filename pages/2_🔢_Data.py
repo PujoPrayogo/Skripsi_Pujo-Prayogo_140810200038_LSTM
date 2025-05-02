@@ -1,6 +1,5 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-from streamlit_extras.let_it_rain import rain 
 
 st.set_page_config(
     page_title="Data CuacaJakpus",
@@ -23,15 +22,6 @@ background: rgba(0,0,0,0);
 """
 
 st.markdown(page_bg_img, unsafe_allow_html=True)
-
-def emoji_rain():
-    rain(
-        emoji="💧",
-        font_size=8,
-        falling_speed=5,
-        animation_length="infinite",
-    )
-emoji_rain()
 
 from streamlit_extras.badges import badge
 with st.sidebar:
@@ -80,12 +70,12 @@ features = [
 with st.expander("Parameter Cuaca (NASA POWER)"):
     st.markdown(
     """
-    - 🌱:rainbow-background[Kelembaban Tanah (0-1)] : Jumlah air dan uap air yang tersedia bagi tanaman di zona perakaran, yang umumnya dianggap sebagai lapisan tanah hingga kedalaman 200 cm, dinyatakan sebagai proporsi air yang terdapat dalam sejumlah tanah tertentu. Nilainya berkisar dari 0 untuk kondisi yang benar-benar kering hingga 1 untuk tanah yang benar-benar jenuh air.
-    - 💨:rainbow-background[Kecepatan Angin (m/s)] : Rata-rata kecepatan angin pada ketinggian 10 meter di atas permukaan bumi.
-    - 🌦️:rainbow-background[Presipitasi (mm/d)] : Rata-rata curah hujan total yang telah dikoreksi bias MERRA-2 di permukaan bumi.
-    - 🌡️:rainbow-background[Temperatur (°C)] : rata-rata temperatur udara pada ketinggian 2 meter di atas permukaan bumi.
-    - 🌍:rainbow-background[Tekanan Permukaan Tanah (kPa)]: Tekanan atmosfer di permukaan bumi.
-    - 😤:rainbow-background[Kelembaban Udara Relatif (%)] : Rasio tekanan uap terhadap tekanan uap jenuh terhadap permukaan datar air murni, dinyatakan dalam persen.
+    - 🌱:gray-background[Kelembaban Tanah (0-1)] : Jumlah air dan uap air yang tersedia bagi tanaman di zona perakaran, yang umumnya dianggap sebagai lapisan tanah hingga kedalaman 200 cm, dinyatakan sebagai proporsi air yang terdapat dalam sejumlah tanah tertentu. Nilainya berkisar dari 0 untuk kondisi yang benar-benar kering hingga 1 untuk tanah yang benar-benar jenuh air.
+    - 💨:gray-background[Kecepatan Angin (m/s)] : Rata-rata kecepatan angin pada ketinggian 10 meter di atas permukaan bumi.
+    - 🌦️:gray-background[Presipitasi (mm/d)] : Rata-rata curah hujan total yang telah dikoreksi bias MERRA-2 di permukaan bumi.
+    - 🌡️:gray-background[Temperatur (°C)] : rata-rata temperatur udara pada ketinggian 2 meter di atas permukaan bumi.
+    - 🌍:gray-background[Tekanan Permukaan Tanah (kPa)]: Tekanan atmosfer di permukaan bumi.
+    - 😤:gray-background[Kelembaban Udara Relatif (%)] : Rasio tekanan uap terhadap tekanan uap jenuh terhadap permukaan datar air murni, dinyatakan dalam persen.
     """
     )
 
