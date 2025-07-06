@@ -6,54 +6,22 @@ from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.python.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from statsmodels.tsa.stattools import acf
+import theme
 
 st.set_page_config(
     page_title="Konfigurasi Model CuacaJakpus",
-    page_icon = "⛈️",
+    page_icon = "🌦️",
 )
 st.title("⚙️Konfigurasi Model")
 
-page_bg_img = """
-<style>
-[data-testid="stAppViewContainer"] {
-background-image: url("https://pluviophile.net/wp-content/uploads/cloudy-weather-wallpaper.jpg");
-background-size: cover;
-background-position: top left;
-background-repeat: no-repeat;
-background-attachment: local;
-}
-[data-testid="stHeader"] {
-background: rgba(0,0,0,0);
-}
-</style>
-"""
+theme.apply_theme() # Tema Halaman (Theme.py)
 
-st.markdown(page_bg_img, unsafe_allow_html=True)
+# ----- Ambil Variabel Global
+features = st.session_state['features']
+features_name = st.session_state['features_name']
+features_name_space = st.session_state['features_name_space']
 
-from streamlit_extras.badges import badge
-with st.sidebar:
-    st.sidebar.title("⛈️CuacaJakpus")
-    badge(type="github", name="PujoPrayogo/Skripsi_Pujo-Prayogo_140810200038_LSTM")
-    st.sidebar.image("https://upload.wikimedia.org/wikipedia/id/8/80/Lambang_Universitas_Padjadjaran.svg")
-    st.write("©Pujo 2025")
-
-features_name = [
-    "Kelembaban_Tanah",
-    "Kecepatan_Angin",
-    "Tekanan_Permukaan",
-    "Presipitasi",
-    "Kelembaban_Udara",
-    "Temperatur"
-]
-
-features = [
-    "GWETROOT", 
-    "WS10M", 
-    "PS", 
-    "PRECTOTCORR",
-    "RH2M", 
-    "T2M"]
-
+ # ---------------------------------------------------------------------------------------------------------------- Fungsi membuat model
 def build_model(hp):
     model = Sequential()
 
@@ -81,6 +49,7 @@ def build_model(hp):
     
     return model
 
+ # --------------------------------------------------------------------------------------------------------------- Fungsi ambil hasil Tuning
 def bestTuningResults(feature_name):
     # ----- Inisiasi Tuner 
     tuner = kt.GridSearch(
@@ -92,27 +61,22 @@ def bestTuningResults(feature_name):
         project_name=f'lstm_{feature_name}_tuning'
     )
 
-    # ----- Output Best Hyperparameter
-    best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
-
-    # ----- Ambil Best Trial untuk mendapatkan nilai skor (MAE)
-    best_trial = tuner.oracle.get_best_trials(num_trials=1)[0]
+    best_hps = tuner.get_best_hyperparameters(num_trials=1)[0] # Output Best Hyperparameter
+    best_trial = tuner.oracle.get_best_trials(num_trials=1)[0] # Ambil Best Trial untuk mendapatkan nilai skor (MAE)
     best_score = best_trial.score  # Nilai MAE dari trial terbaik
 
-    # ----- Menyimpan hasil tuning terbaik sebagai dictionary
-    best_params = {
+    best_params = {  # ----- Menyimpan hasil tuning terbaik sebagai dictionary
         "Feature": feature_name,
         "Layers": best_hps.get('layers'),
         "Filters": best_hps.get('filters'),
         "Activation": best_hps.get('activation'),
         "Optimizer": best_hps.get('optimizer'),
         "Learning Rate": best_hps.get('learning_rate'),
-        "Score (MAE)": best_score  # Menyimpan skor terbaik
+        "Score (MAE)": best_score  
     }
     
     return best_params
 
-# ----- Timesteps
 timesteps = {
     "Kelembaban_Tanah": 30,
     "Kecepatan_Angin": 20,
@@ -122,15 +86,6 @@ timesteps = {
     "Temperatur": 20
 }
 
-features_name_space = [
-    "Kelembaban Tanah",
-    "Kecepatan Angin",
-    "Tekanan Permukaan",
-    "Presipitasi",
-    "Kelembaban Udara",
-    "Temperatur"
-]
-
 with st.spinner("Sedang Load Tuning..."):
 # ----- Menggabungkan hasil tuning terbaik ke dalam satu DataFrame
     df_best_results = pd.DataFrame([bestTuningResults(feature) for feature in features_name])
@@ -138,9 +93,10 @@ with st.spinner("Sedang Load Tuning..."):
     df_best_results.index += 1
 
     # ----- Menampilkan seluruh hasil terbaik dalam satu tabel
-    st.write("## Konfigurasi Hyperparameter Terbaik")
+    st.write("### Konfigurasi Hyperparameter Terbaik")
     st.write(df_best_results)
 
+ # ---------------------------------------------------------------------------------------------------------------  Fungsi Hasil Tuning
 def tuningResult(feature_name):
     # ----- Inisiasi Tuner 
     tuner = kt.GridSearch(
@@ -170,20 +126,8 @@ def tuningResult(feature_name):
     # ----- Print seluruh hasil hyperparameter tuning
     st.write(df_results)
 
-# def prediction_plot(df, X_train, timesteps, y_test_inv, y_pred_inv, feature, feature_name, target_date, col):
-#     # --- VISUALISASI HASIL PREDIKSI ---
-#     plt.figure(figsize=(10, 4))
-#     plt.plot(df.index[len(X_train) + timesteps:], y_test_inv, label='Data Aktual', color='blue')
-#     plt.plot(df.index[len(X_train) + timesteps:], y_pred_inv, label='Prediksi Model', color='orange')
 
-#     plt.xlabel('Tahun')
-#     plt.ylabel(metrics_dict[feature])
-#     plt.title(f'Prediksi {feature_name} Hingga {target_date}')
-#     plt.grid(True)
-#     plt.legend()
-#     col.pyplot(plt.gcf())
-
-# ----- Fungsi Autokorelasi
+ # --------------------------------------------------------------------------------------------------------------- Fungsi Autokorelasi
 def determine_timesteps(df, max_lag, features_name_space):
     timesteps_dict = {}
     
@@ -195,6 +139,7 @@ def determine_timesteps(df, max_lag, features_name_space):
         # Plotting autokorelasi
         plt.figure(figsize=(10, 6))
         plt.stem(range(len(lag_acf)), lag_acf)
+        
         #plt.title(f'Autokorelasi Data {features_name_space[i]}')
         plt.xlabel('Lag')
         plt.ylabel('Autokorelasi')

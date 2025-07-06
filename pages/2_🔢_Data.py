@@ -1,71 +1,35 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import theme
 
 st.set_page_config(
     page_title="Data CuacaJakpus",
-    page_icon = "⛈️",
+    page_icon = "🌦️",
 )
 
-page_bg_img = """
-<style>
-[data-testid="stAppViewContainer"] {
-background-image: url("https://pluviophile.net/wp-content/uploads/cloudy-weather-wallpaper.jpg");
-background-size: cover;
-background-position: top left;
-background-repeat: no-repeat;
-background-attachment: local;
-}
-[data-testid="stHeader"] {
-background: rgba(0,0,0,0);
-}
-</style>
-"""
-
-st.markdown(page_bg_img, unsafe_allow_html=True)
-
-from streamlit_extras.badges import badge
-with st.sidebar:
-    st.sidebar.title("⛈️CuacaJakpus")
-    badge(type="github", name="PujoPrayogo/Skripsi_Pujo-Prayogo_140810200038_LSTM")
-    st.sidebar.image("https://upload.wikimedia.org/wikipedia/id/8/80/Lambang_Universitas_Padjadjaran.svg")
-    st.write("©Pujo 2025")
+theme.apply_theme() # Tema Halaman (Theme.py)
 
 st.title("🔢Data yang digunakan")
-st.markdown('Sumber : [POWER NASA](https://power.larc.nasa.gov/data-access-viewer/)')
-st.write(f'Rentang Waktu : {st.session_state['start_date'].year} - {st.session_state['end_date'].year}')
-st.write(f'Koordinat : {st.session_state['lat']}, {st.session_state['long']}')
-st.write('Lokasi : Kota Administrasi Jakarta Pusat')
 
-features_name = [
-    "Kelembaban_Tanah",
-    "Kecepatan_Angin",
-    "Tekanan_Permukaan",
-    "Presipitasi",
-    "Kelembaban_Udara",
-    "Temperatur"
-]
+col1, col2 = st.columns(2)
 
-features_name_space = [
-    "Kelembaban Tanah",
-    "Kecepatan Angin",
-    "Tekanan Permukaan",
-    "Presipitasi",
-    "Kelembaban Udara",
-    "Temperatur"
-]
+col1.markdown('Sumber : [POWER NASA](https://power.larc.nasa.gov/data-access-viewer/)')
+col1.write(f'Rentang Waktu : {st.session_state['start_date'].year} - {st.session_state['end_date'].year}')
+col2.write(f'Koordinat : {st.session_state['lat']}, {st.session_state['long']}')
+col2.write('Lokasi : Kota Administrasi Jakarta Pusat')
 
-# List metric yang digunakan pada tiap parameter (berurutan dengan 'features')
-metrics = ['0/1', 'm/s', 'kPa', 'mm/d', '%', 'C']
-
+# ----- Ambil Variabel Global
+features = st.session_state['features']
+features_name = st.session_state['features_name']
+features_name_space = st.session_state['features_name_space']
 df = st.session_state["df_all"]
 
-features = [
-    "GWETROOT", 
-    "WS10M", 
-    "PS", 
-    "PRECTOTCORR",
-    "RH2M", 
-    "T2M"]
+col = st.columns(1)
+
+
+# ----- List metric yang digunakan pada tiap parameter (berurutan dengan 'features')
+metrics = ['0/1', 'm/s', 'kPa', 'mm/d', '%', 'C']
+
 
 with st.expander("Parameter Cuaca (NASA POWER)"):
     st.markdown(
@@ -80,11 +44,13 @@ with st.expander("Parameter Cuaca (NASA POWER)"):
     )
 
 st.write(f'## Total Data: {len(df.columns) * len(df.index)}')
-st.write(f'Baris: {len(df)}')
+col1, col2 = st.columns(2)
 
+col1.write(f'Baris: {len(df)}')
 # Cek Data Null
-st.write(f'Data Invalid : {(df == -999).sum().sum()}')
+col2.write(f'Data Invalid : {(df == -999).sum().sum()}')
 
+col = st.columns(1)
 df.rename(columns={
     "Kelembaban_Tanah": "Kelembaban Tanah (0-1)",
     "Kecepatan_Angin": "Kecepatan Angin (m/s)",
@@ -115,7 +81,7 @@ def plot_weather_data(df, split_index, column, col):
     plt.tight_layout()
     col.pyplot(plt.gcf())
 
-st.markdown("## Visualisasi Data")
+st.markdown("<h2 style='text-align: center;'>Visualisasi Data</h2>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 plot_weather_data(df, split_index, df.columns[0], col1)
 plot_weather_data(df, split_index, df.columns[1], col2)
