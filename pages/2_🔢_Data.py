@@ -1,5 +1,6 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+from streamlit_extras.badges import badge
 
 st.set_page_config(
     page_title="Data CuacaJakpus",

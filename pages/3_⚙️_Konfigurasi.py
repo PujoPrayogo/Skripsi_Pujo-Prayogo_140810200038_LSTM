@@ -6,6 +6,7 @@ from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.python.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from statsmodels.tsa.stattools import acf
+from streamlit_extras.badges import badge
 
 st.set_page_config(
     page_title="Konfigurasi Model CuacaJakpus",
