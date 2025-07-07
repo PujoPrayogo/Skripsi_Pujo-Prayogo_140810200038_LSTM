@@ -8,15 +8,36 @@ from sklearn.metrics import r2_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from streamlit_extras.badges import badge
-import theme
+
 
 # ----- Judul Halaman
 st.set_page_config(                     
     page_title="CuacaJakpus",
     page_icon = "🌦️",
-
 ) 
-theme.apply_theme() # Tema Halaman (Theme.py)
+
+page_bg_img = """
+<style>
+[data-testid="stAppViewContainer"] {
+background-image: url("https://images.unsplash.com/photo-1727249372967-c70430ba6847?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+background-size: cover;
+background-position: center -120px;
+background-repeat: no-repeat;
+background-attachment: local;
+}
+[data-testid="stHeader"] {
+background: rgba(0,0,0,0);
+}
+</style>
+"""
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
+with st.sidebar:
+    st.sidebar.title("🌦️CuacaJakpus")
+    st.write("Aplikasi prediksi cuaca pada tahun 2025 menggunakan model LSTM")
+    badge(type="github", name="PujoPrayogo/Skripsi_Pujo-Prayogo_140810200038_LSTM")
+    st.sidebar.image("https://upload.wikimedia.org/wikipedia/id/8/80/Lambang_Universitas_Padjadjaran.svg", width=100)
+    st.write("©Pujo Prayogo | 2025")
 
 st.markdown("<h1 style='font-size: 60px;'>🌦️ CuacaJakpus</h1>", unsafe_allow_html=True)
 st.write('Prediksi Cuaca di Jakarta Pusat menggunakan model LSTM')
